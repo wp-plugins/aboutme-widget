@@ -17,9 +17,9 @@ Use this widget to integrate your about.me profile information in your WordPress
 
 This section describes how to install the plugin and get it working.
 
-1. Upload the widget archive to your `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to Appearance/Widgets to move the widget into your theme and configure it
+1. Upload the widget archive to your `/wp-content/plugins/` directory.
+1. Activate the plugin through the 'Plugins' menu in WordPress.
+1. Go to Appearance/Widgets to move the widget into your theme and configure it.
 
 == Frequently Asked Questions ==
 
