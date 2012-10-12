@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: https://about.me/?ncid=aboutmewpwidget
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.0-WPCOM
+Version: 1.0
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -301,7 +301,6 @@ margin-bottom: 4px;
 		$fontsize = $instance['fontsize'];
 		$username = array_key_exists( 'username', $instance )? $instance['username'] : '';
 		$display_image = array_key_exists( 'display_image', $instance )? $instance['display_image'] : '1';
-		//print_r( $instance );
 		if ( empty($username) ) {
 ?>
 			<p>
