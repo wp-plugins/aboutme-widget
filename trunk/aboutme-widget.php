@@ -301,7 +301,6 @@ margin-bottom: 4px;
 		$fontsize = $instance['fontsize'];
 		$username = array_key_exists( 'username', $instance )? $instance['username'] : '';
 		$display_image = array_key_exists( 'display_image', $instance )? $instance['display_image'] : '1';
-		//print_r( $instance );
 		if ( empty($username) ) {
 ?>
 			<p>
