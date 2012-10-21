@@ -1,0 +1,97 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: aboutme-widget\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-24 19:26+0530\n"
+"PO-Revision-Date: 2012-09-24 19:31+0530\n"
+"Last-Translator: \n"
+"Language-Team: About.me\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: aboutme-widget.php:29
+msgid "Display your about.me profile with thumbnail"
+msgstr ""
+
+#: aboutme-widget.php:30
+msgid "About.me Widget"
+msgstr ""
+
+#: aboutme-widget.php:308
+msgid "About.me"
+msgstr ""
+
+#: aboutme-widget.php:308
+msgid ""
+"is a free service that lets you create a beautiful one-page website all "
+"about you."
+msgstr ""
+
+#: aboutme-widget.php:311
+msgid "Current users simply add your username below. Or,"
+msgstr ""
+
+#: aboutme-widget.php:311
+msgid "sign up"
+msgstr ""
+
+#: aboutme-widget.php:311
+msgid ", create a page then add your username here."
+msgstr ""
+
+#: aboutme-widget.php:315
+msgid "Widget title"
+msgstr ""
+
+#: aboutme-widget.php:319
+msgid "Your about.me username"
+msgstr ""
+
+#: aboutme-widget.php:324
+msgid ""
+"There isn't an about.me page by that name. Please check your username and "
+"try again."
+msgstr ""
+
+#: aboutme-widget.php:326
+msgid "Don't have an about.me page?"
+msgstr ""
+
+#: aboutme-widget.php:326
+msgid "Sign up now!"
+msgstr ""
+
+#: aboutme-widget.php:328 aboutme-widget.php:330
+msgid ""
+"We encountered an error while communicating with the about.me server.  "
+"Please try again later."
+msgstr ""
+
+#: aboutme-widget.php:335
+msgid "Name size"
+msgstr ""
+
+#: aboutme-widget.php:337
+msgid "X-Large"
+msgstr ""
+
+#: aboutme-widget.php:338
+msgid "Large"
+msgstr ""
+
+#: aboutme-widget.php:339
+msgid "Medium"
+msgstr ""
+
+#: aboutme-widget.php:340
+msgid "Small"
+msgstr ""
+
+#: aboutme-widget.php:344
+msgid "Display Image"
+msgstr ""
