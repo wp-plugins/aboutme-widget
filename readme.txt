@@ -56,8 +56,8 @@ Head to [about.me to register] https://about.me for your free about.me page. It 
 
 == Screenshots ==
 
-1. The widget configuration view. widget-config.png
-2. Sample about.me widget. sample-widget.png
+1. The widget configuration view. (added in version 1.0.1)
+2. Sample about.me widget. (added in version 1.0.1)
 
 == Changelog ==
 
