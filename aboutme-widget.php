@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: About.me Widget
-Plugin URI: https://about.me/?ncid=aboutmewpwidget
+Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.0.1
+Version: 1.0.2
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
