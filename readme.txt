@@ -33,7 +33,7 @@ Quickly get the about.me widget working on your blog:
 
 1. Upload the widget archive to your `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Go to Appearance >> Widgets to move the widget into your theme and configure the name and settings.
+3. Go to **Appearance >> Widgets** to move the widget into your theme and configure the name and settings.
 
 If you don't have an account, <a href="https://about.me/?ncid=-wp-widget" >sign up at about.me</a> to easily create a page and use the widget.
 
@@ -43,7 +43,7 @@ If you don't have an account, <a href="https://about.me/?ncid=-wp-widget" >sign 
 Yes, when you update your about.me page, your widget will update within a few hours.
 
 = Can I edit the widget? = 
-Yes, you control the title of the widget, the text size and determine whether you’d like an image to display or not. 
+Yes, you control the title of the widget, the text size and determine whether you'd like an image to display or not. 
 
 = What does: "We encountered an error while communicating with the about.me server." mean? = 
 If you see this more than once please contact us at help@about.me!
