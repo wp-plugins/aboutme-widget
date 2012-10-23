@@ -25,7 +25,7 @@ Control the name of the section (About the Author, Who I Am etc.) the size of yo
 = Visual = 
 Bring in the beautiful background from your about.me page, as well as visual icons from your social networks.
 
-If you don't have an account, <a href="https://about.me?/ncid=-wp-widget" >sign up at about.me</a> to easily create a page and use the widget.
+If you don't have an account, <a href="https://about.me/?ncid=-wp-widget" >sign up at about.me</a> to easily create a page and use the widget.
 
 == Installation ==
 
@@ -35,7 +35,7 @@ Quickly get the about.me widget working on your blog:
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Go to Appearance >> Widgets to move the widget into your theme and configure the name and settings.
 
-If you don't have an account, <a href="https://about.me?/ncid=-wp-widget" >sign up at about.me</a> to easily create a page and use the widget.
+If you don't have an account, <a href="https://about.me/?ncid=-wp-widget" >sign up at about.me</a> to easily create a page and use the widget.
 
 == Frequently Asked Questions ==
 
@@ -49,10 +49,10 @@ Yes, you control the title of the widget, the text size and determine whether yo
 If you see this more than once please contact us at help@about.me!
 
 = Where can I post feedback? =
-Let us know what you think at [our feedback forum] (http://support.about.me/forums/60495-feedback/suggestions/3154817-wordpress-widget-feedback).
+Let us know what you think at <a href=http://support.about.me/forums/60495-feedback/suggestions/3154817-wordpress-widget-feedback>our feedback forum</a>.
 
 = How do I get an about.me page? =
-Head to [about.me to register] https://about.me for your free about.me page. It takes less than a minute to set up.
+Head to <a href=https://about.me>about.me to register</a>  for your free about.me page. It takes less than a minute to set up.
 
 == Screenshots ==
 
