@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aboutme-widget\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-24 19:26+0530\n"
-"PO-Revision-Date: 2012-09-24 19:31+0530\n"
+"POT-Creation-Date: 2012-11-10 20:31+0530\n"
+"PO-Revision-Date: 2012-11-10 20:31+0530\n"
 "Last-Translator: \n"
 "Language-Team: About.me\n"
 "MIME-Version: 1.0\n"
@@ -14,84 +14,100 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: aboutme-widget.php:29
+#: aboutme-widget.php:31
 msgid "Display your about.me profile with thumbnail"
 msgstr ""
 
-#: aboutme-widget.php:30
+#: aboutme-widget.php:32
 msgid "About.me Widget"
 msgstr ""
 
-#: aboutme-widget.php:308
+#: aboutme-widget.php:320
 msgid "About.me"
 msgstr ""
 
-#: aboutme-widget.php:308
+#: aboutme-widget.php:320
 msgid ""
 "is a free service that lets you create a beautiful one-page website all "
 "about you."
 msgstr ""
 
-#: aboutme-widget.php:311
+#: aboutme-widget.php:323
 msgid "Current users simply add your username below. Or,"
 msgstr ""
 
-#: aboutme-widget.php:311
+#: aboutme-widget.php:323
 msgid "sign up"
 msgstr ""
 
-#: aboutme-widget.php:311
+#: aboutme-widget.php:323
 msgid ", create a page then add your username here."
 msgstr ""
 
-#: aboutme-widget.php:315
+#: aboutme-widget.php:327
 msgid "Widget title"
 msgstr ""
 
-#: aboutme-widget.php:319
+#: aboutme-widget.php:331
 msgid "Your about.me username"
 msgstr ""
 
-#: aboutme-widget.php:324
+#: aboutme-widget.php:336
 msgid ""
 "There isn't an about.me page by that name. Please check your username and "
 "try again."
 msgstr ""
 
-#: aboutme-widget.php:326
+#: aboutme-widget.php:338
 msgid "Don't have an about.me page?"
 msgstr ""
 
-#: aboutme-widget.php:326
+#: aboutme-widget.php:338
 msgid "Sign up now!"
 msgstr ""
 
-#: aboutme-widget.php:328 aboutme-widget.php:330
+#: aboutme-widget.php:340
+msgid ""
+"There was an authorization error in the profile api request. Please contact "
+"help@about.me for support."
+msgstr ""
+
+#: aboutme-widget.php:341 aboutme-widget.php:344 aboutme-widget.php:347
+msgid " mentiontioning following url:"
+msgstr ""
+
+#: aboutme-widget.php:343
+msgid ""
+"There was an authorization error in the registration process. Please email "
+"help@about.me for support."
+msgstr ""
+
+#: aboutme-widget.php:346
 msgid ""
 "We encountered an error while communicating with the about.me server.  "
 "Please try again later."
 msgstr ""
 
-#: aboutme-widget.php:335
+#: aboutme-widget.php:352
 msgid "Name size"
 msgstr ""
 
-#: aboutme-widget.php:337
+#: aboutme-widget.php:354
 msgid "X-Large"
 msgstr ""
 
-#: aboutme-widget.php:338
+#: aboutme-widget.php:355
 msgid "Large"
 msgstr ""
 
-#: aboutme-widget.php:339
+#: aboutme-widget.php:356
 msgid "Medium"
 msgstr ""
 
-#: aboutme-widget.php:340
+#: aboutme-widget.php:357
 msgid "Small"
 msgstr ""
 
-#: aboutme-widget.php:344
+#: aboutme-widget.php:361
 msgid "Display Image"
 msgstr ""

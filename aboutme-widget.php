@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.0.2
+Version: 1.0.3
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -18,8 +18,10 @@ class Aboutme_Widget extends WP_Widget {
 	const CACHE_TIME = 3600;
 	const ERROR_NO_USER = 1;
 	const ERROR_EMPTY_USER = 2;
-	const ERROR_NO_CLIENT = 3;
+	const API_PROFILE_ERROR = 3;
 	const API_SERVER_ERROR = 4;
+	const API_REGISTRATION_ERROR = 5;
+
 
 
 	/**
@@ -167,6 +169,9 @@ margin-bottom: 4px;
 		$new_instance['src_url'] = str_ireplace( array('https://','http://'), '' , $src_url );
 		$new_instance['display_image'] = $new_instance['display_image'] ? '1' : '0';
 		$registration_flag = true; //This determines if we need to call registration api or not.
+		$dataurl = '';
+		$url = '';
+		$new_instance['debug_url'] = '';
 		//Process only if username has been entered
 		if ( empty( $username ) ) {
 			$new_instance['error'] = self::ERROR_EMPTY_USER;
@@ -187,6 +192,7 @@ margin-bottom: 4px;
 				$data = $this->get_api_content( $url );
 				if (false === $data) {
 					$new_instance['error'] = self::API_SERVER_ERROR;
+					$new_instance['debug_url'] = $url;
 				} else {
 					if ( !empty( $data ) ) {
 						if ( 200 == $data->status ) {
@@ -194,14 +200,17 @@ margin-bottom: 4px;
 							$new_instance['client_id'] = $data->apikey;
 							$new_instance['error'] = 0;
 						} elseif (401 == $data->status) {
-							$new_instance['error'] = self::ERROR_NO_CLIENT;
+							$new_instance['error'] = self::API_REGISTRATION_ERROR;
 							$new_instance['client_id'] = '';
+							$new_instance['debug_url'] = $url;
+							
 						} elseif (404 == $data->status) {
 							$new_instance['error'] = self::ERROR_NO_USER;
 							$new_instance['client_id'] = '';
 						}
 					} else {
-						$new_instance['error'] = self::API_SERVER_ERROR;
+						$new_instance['error'] = self::API_REGISTRATION_ERROR;
+						$new_instance['debug_url'] = $url;
 					}
 				}
 			}
@@ -211,6 +220,7 @@ margin-bottom: 4px;
 				$userdata = $this->get_api_content( $dataurl );
 				if (false === $userdata) {
 					$new_instance['error'] = self::API_SERVER_ERROR;
+					$new_instance['debug_url'] = $dataurl;
 				} else {
 					if ( !empty( $userdata ) ){
 						if ( 200 == $userdata->status ) {
@@ -219,14 +229,17 @@ margin-bottom: 4px;
 							$data = $this->extract_api_data( $userdata );
 							set_transient( 'am_' . $username . '_data', $data, self::CACHE_TIME );
 						} elseif (401 == $data->status) {
-							$new_instance['error'] = self::ERROR_NO_CLIENT;
+							$new_instance['error'] = self::API_PROFILE_ERROR;
 							$new_instance['client_id'] = '';
+							$new_instance['debug_url'] = $dataurl;
+							
 						} elseif (404 == $data->status) {
 							$new_instance['error'] = self::ERROR_NO_USER;
 							$new_instance['client_id'] = '';
 						}
 					} else {
-						$new_instance['error'] = self::API_SERVER_ERROR;
+						$new_instance['error'] = self::API_PROFILE_ERROR;
+						$new_instance['debug_url'] = $dataurl;
 					}
 				}
 			}
@@ -296,7 +309,7 @@ margin-bottom: 4px;
 	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
-		$instance = wp_parse_args( ( array ) $instance, array( 'title' => 'about.me', 'fontsize' =>'large', 'client_id' => '', 'error' => 0, 'src_url'  => str_ireplace( array('https://','http://'), '' , get_site_url() ), 'username' => '', 'display_image' => '1' ) );
+		$instance = wp_parse_args( ( array ) $instance, array( 'title' => 'about.me', 'fontsize' =>'large', 'client_id' => '', 'error' => 0, 'debug_url' => '', 'src_url'  => str_ireplace( array('https://','http://'), '' , get_site_url() ), 'username' => '', 'display_image' => '1' ) );
 		$title = $instance['title'];
 		$fontsize = $instance['fontsize'];
 		$username = array_key_exists( 'username', $instance )? $instance['username'] : '';
@@ -323,10 +336,15 @@ margin-bottom: 4px;
 					<span style="font-size:80%;color:red"><?php _e( "There isn't an about.me page by that name. Please check your username and try again.", 'aboutme-widget' ) ?></span>
 				<?php } else if ( self::ERROR_EMPTY_USER == $instance['error'] ) { ?>
 					<span style="font-size:80%"><?php _e( "Don't have an about.me page?", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'Sign up now!', 'aboutme-widget' );?></a></span>
-				<?php } else if ( self::ERROR_NO_CLIENT == $instance['error'] ) { ?>
-					<span style="font-size:80%;color:red"><?php _e( 'We encountered an error while communicating with the about.me server.  Please try again later.', 'aboutme-widget' ) ?></span>
+				<?php } else if ( self::API_PROFILE_ERROR == $instance['error'] ) { ?>
+					<span style="font-size:80%;color:red"><?php _e( 'There was an authorization error in the profile api request. Please contact help@about.me for support.', 'aboutme-widget' ) ?></span>
+					<?php if ( array_key_exists( 'debug_url', $instance ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
+				<?php } else if ( self::API_REGISTRATION_ERROR == $instance['error'] ) { ?>
+					<span style="font-size:80%;color:red"><?php _e( 'There was an authorization error in the registration process. Please email help@about.me for support.', 'aboutme-widget' ) ?></span>
+					<?php if ( array_key_exists( 'debug_url', $instance ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
 				<?php } else if ( self::API_SERVER_ERROR == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( 'We encountered an error while communicating with the about.me server.  Please try again later.', 'aboutme-widget' ) ?></span>
+					<?php if ( array_key_exists( 'debug_url', $instance ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
 				<?php } ?>
 			<?php } ?>
 		</p>
@@ -357,3 +375,152 @@ function aboutme_widget_init() {
 }
 
 add_action( 'widgets_init', 'aboutme_widget_init' );
+
+
+
+
+
+
+
+
+
+
+/* Starting shortcode code lines */
+
+/**
+ * aboutme shortcode function
+ * @param  $atts supplies attributes of shortcode 
+ *
+ * @return string
+ */
+function am_shortcode($atts, $content = null) {
+	$username = $atts['username'];
+	$url = "https://api.about.me/api/v2/json/user/view/$username?client_id=32dc0428797310789e2b28b0b41455dd59c117c7_112796&extended=true&on_match=true&strip_html=false";
+	$response = wp_remote_get( $url, array( 'sslverify'=>0, 'User-Agent' => 'WordPress.com About.me Widget' ) );
+	$data = array();
+	if ( !is_wp_error( $response ) ) {
+		$data = json_decode( $response['body'] );
+	}
+	$data = get_am_api_data( $data );
+	return get_am_generate_content($data);
+}
+
+add_shortcode('aboutme', 'am_shortcode');
+
+/**
+ * Only extract required keys from json data of api profile call
+ * @param class $data json content of profile
+ *
+ * @return array
+ */
+function get_am_api_data( $data ) {
+	$retarr = array();
+	if ( !empty( $data ) && 200 == $data->status ) {
+		$icons = array();
+		$i=0;
+		foreach ( $data->websites as $c ) {
+			if ( 'link' == $c->platform || 'default' == $c->platform )
+				continue; //we want to show only service icons
+			if ( !empty( $c->icon42_url ) ) {
+				$icon_url = $c->icon42_url;
+				$icon_url = str_replace( '42x42', '32x32', $icon_url );
+				if ( $c->site_url ) {
+					$url = $c->site_url;
+				} else if( $c->modal_url ) {
+					$url = $c->modal_url;
+				} else {
+					$url = 'http://about.me/' . $data->user_name . '/#!/service/' . $c->platform;
+				}
+				$icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url );
+			}
+		}
+		$retarr['service_icons'] = $icons;
+		$retarr['profile_url'] = $data->profile;
+		$retarr['thumbnail'] = $data->background;
+		$retarr['first_name'] = $data->first_name;
+		$retarr['last_name'] = $data->last_name;
+		$retarr['header'] = $data->header;
+		$retarr['bio'] = $data->bio;
+	}
+	return $retarr;
+}
+
+/**
+ * Generate shortcode parsed content.
+ *
+ * @param array $data     aboutme profile data.
+ * @return string.
+ */
+function get_am_generate_content($data){
+$biostr ='';
+if ( !empty( $data['bio'] ) ) {
+	$biostr = '<p>' . str_replace( "\n", '</p><p>', wp_kses_data( $data['bio'] ) ) . '</p>';
+}
+$servicestr = '';
+if ( count( $data['service_icons'] ) > 0 ) {
+	$servicestr = '<div id="am_services">';
+	foreach ( $data['service_icons'] as $v ) {
+		$servicestr .= '<a href="' . esc_url( $v['url'] ) . '" target="_blank" class="am_service_icon" rel="me"><img src="' . esc_url( $v['icon'] ) . '"></a>';
+	}
+	$servicestr .= '</div>';
+}
+
+$content = 
+'<style type="text/css">
+#am_thumbnail a {
+text-decoration: none;
+border: none;
+}
+#am_thumbnail img {
+text-decoration: none;
+border: 1px solid #999;
+max-width: 99%;
+}
+#am_name {
+margin-top: 5px;
+margin-bottom: 3px;
+}
+#am_headline {
+margin-bottom: 5px;
+}
+#am_bio {
+margin-bottom: 15px;
+}
+#am_bio p {
+margin-bottom: 5px;
+}
+#am_bio p:last-child {
+margin-bottom: 0px;
+}
+#am_services {
+margin-right: -5px;
+}
+#am_services a.am_service_icon {
+margin-right: 4px;
+text-decoration: none;
+border: none;
+}
+#am_services a.am_service_icon:hover {
+text-decoration: none;
+border: none;
+}
+#am_services a.am_service_icon img {
+border: none;
+margin-bottom: 4px;
+}
+</style>
+
+<div id="am_thumbnail">
+	<a href="' . esc_url( $data['profile_url'] ) . '" target="_blank" rel="me">
+		<img src="' . esc_url( $data['thumbnail'] ) .'" alt="'. esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '">
+	</a>
+</div>
+<h2 id="am_name">
+	<a href="'.esc_url( $data['profile_url'] ) . '" style="font-size:large;" target="_blank" rel="me">' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '</a>
+</h2>
+<h3 id="am_headline">' . esc_attr( $data['header'] ) . '</h3>
+<div id="am_bio">
+	<p>' . $biostr .'</p>
+</div>' . $servicestr;
+return $content;
+}
