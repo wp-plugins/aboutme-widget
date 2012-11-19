@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.0.3
+Version: 1.0.4
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -338,13 +338,12 @@ margin-bottom: 4px;
 					<span style="font-size:80%"><?php _e( "Don't have an about.me page?", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'Sign up now!', 'aboutme-widget' );?></a></span>
 				<?php } else if ( self::API_PROFILE_ERROR == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( 'There was an authorization error in the profile api request. Please contact help@about.me for support.', 'aboutme-widget' ) ?></span>
-					<?php if ( array_key_exists( 'debug_url', $instance ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
+					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
 				<?php } else if ( self::API_REGISTRATION_ERROR == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( 'There was an authorization error in the registration process. Please email help@about.me for support.', 'aboutme-widget' ) ?></span>
-					<?php if ( array_key_exists( 'debug_url', $instance ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
+					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
 				<?php } else if ( self::API_SERVER_ERROR == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( 'We encountered an error while communicating with the about.me server.  Please try again later.', 'aboutme-widget' ) ?></span>
-					<?php if ( array_key_exists( 'debug_url', $instance ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
 				<?php } ?>
 			<?php } ?>
 		</p>
