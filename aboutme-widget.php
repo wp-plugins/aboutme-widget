@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.0.4
+Version: 1.1
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -45,9 +45,14 @@ class Aboutme_Widget extends WP_Widget {
 		extract( $args, EXTR_SKIP );
 		$title = empty( $instance['title'] ) ? '' : apply_filters( 'widget_title', $instance['title'] );
 		$fontsize = empty( $instance['fontsize'] ) ? 'large' : $instance['fontsize'];
+		$photo = empty( $instance['photo'] ) ? 'background' : $instance['photo'];
 		$username = empty( $instance['username'] ) ? '' : $instance['username'];
 		//We need to check the key existence as this option was absent in initial release, otherwise widget might break
-		$display_image = array_key_exists('display_image', $instance )? $instance['display_image'] : "1" ;
+		$headline = array_key_exists('headline', $instance )? $instance['headline'] : "1";
+		$biography = array_key_exists('biography', $instance )? $instance['biography'] : "1";
+		$apps = array_key_exists('apps', $instance )? $instance['apps'] : "1";
+		/*$links = array_key_exists('links', $instance )? $instance['links'] : "1";*/
+				
 		//If no username is there, return
 		if ( empty( $username ) )
 			return;
@@ -73,7 +78,7 @@ class Aboutme_Widget extends WP_Widget {
 
 		//Display the profile:
 		// if any key value is not present in stored data, delete the data as it is not in proper format
-		$keys = array( 'service_icons', 'profile_url', 'thumbnail', 'first_name', 'last_name', 'header', 'bio' );
+		$keys = array( 'app_icons', 'link_icons', 'profile_url', 'thumbnail', 'avatar', 'first_name', 'last_name', 'header', 'bio' );
 		foreach ( $keys as $k => $val ) {
 			if ( !array_key_exists( $val, $data ) ) {
 				delete_transient( 'am_' . $username . '_data' );
@@ -125,28 +130,62 @@ border: none;
 border: none;
 margin-bottom: 4px;
 }
+/*
+#am_links a.am_link_icon img {
+border: none;
+text-decoration: none;
+vertical-align: middle;
+}
+#am_links a.am_link_icon img:hover {
+text-decoration: none;
+border: none;
+}
+*/
 </style>
 <?php
 			// html markup for widget display
 			echo $before_widget;
 			if ( !empty( $title ) )
 				echo $before_title . $title . $after_title;
-			if ( $display_image == '1' && $data['thumbnail'] != '') {
-				echo '<div id="am_thumbnail"><a href="' . esc_url( $data['profile_url'] ) . '" target="_blank" rel="me"><img src="' . esc_url( $data['thumbnail'] ) . '" alt="' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '"></a></div>';
+			if ( $photo == 'background' )
+				$thumbnail = $data['thumbnail'];
+			elseif ( $photo == 'bio' )
+			 	$thumbnail =  $data['avatar'];
+			else
+				$thumbnail =  '';
+			if ( !empty( $thumbnail ) ) {
+				echo '<div id="am_thumbnail"><a href="' . esc_url( $data['profile_url'] ) . '" target="_blank" rel="me"><img src="' . esc_url( $thumbnail ) . '" alt="' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '"></a></div>';
 			}
-			echo '<h2 id="am_name"><a href="' . $data['profile_url'] . '" style="font-size:' . $fontsize . ';" target="_blank" rel="me">' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '</a></h2>';
-			if ( !empty( $data['header'] ) ) echo '<h3 id="am_headline">' . esc_attr( $data['header'] ) . '</h3>';
-			if ( !empty( $data['bio'] ) ) {
+			if( $fontsize != 'no-name' ) {
+				echo '<h2 id="am_name"><a href="' . $data['profile_url'] . '" style="font-size:' . $fontsize . ';" target="_blank" rel="me">' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '</a></h2>';
+			}
+			//If user opts to show headline show that
+			if ( $headline && !empty( $data['header'] ) ) echo '<h3 id="am_headline">' . esc_attr( $data['header'] ) . '</h3>';
+			//If user opts to show bio show that
+			if ( $biography && !empty( $data['bio'] ) ) {
 				$biostr = '<p>' . str_replace( "\n", '</p><p>', wp_kses_data( $data['bio'] ) ) . '</p>';
-				echo '<div id="am_bio">' . $biostr . '</div>';
+			} else {
+				$biostr = '';
 			}
-			if ( count( $data['service_icons'] ) > 0 ) {
+			echo '<div id="am_bio">' . $biostr . '</div>';
+			//If user opts to show apps show that
+			if ( $apps && count( $data['app_icons'] ) > 0 ) {
 				echo '<div id="am_services">';
-				foreach ( $data['service_icons'] as $v ) {
+				foreach ( $data['app_icons'] as $v ) {
 					echo '<a href="' . esc_url( $v['url'] ) . '" target="_blank" class="am_service_icon" rel="me"><img src="' . esc_url( $v['icon'] ) . '"></a>';
 				}
 				echo '</div>';
 			}
+			//If user opts to show links show that
+			/*
+			if ( $links && count( $data['link_icons'] ) > 0 ) {
+				echo '<div id="am_links"><ul>';
+				foreach ( $data['link_icons'] as $v ) {
+					echo '<li> <a href="' . esc_url( $v['url'] ) . '" target="_blank"  rel="me" class="am_link_icon"><img src="' . esc_url( $v['icon'] ) . '" ></a> <span><a href="' . esc_url( $v['url'] ) . '" target="_blank"  rel="me" class="am_link_icon">' . esc_attr( $v['text'] ) . '</a></span></li>';
+				}
+				echo '</ul></div>';
+			}
+			*/
 			echo $after_widget;
 		}
 	}
@@ -162,12 +201,15 @@ margin-bottom: 4px;
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$discard = array( 'https://about.me/', 'http://about.me/', 'about.me/' );
-		$username = empty( $new_instance['username'] ) ? '' : $new_instance['username'];
-		$new_instance['username'] = strip_tags( stripslashes( str_replace( $discard, '', trim( $username ) ) ) );
-		
+		$username = empty( $new_instance['username'] ) ? '' : trim($new_instance['username']);
+		$new_instance['username'] = strip_tags( stripslashes( str_replace( $discard, '',  $username ) ) );
+		$username = $new_instance['username'];
 		$src_url = empty( $new_instance['src_url'] ) ? get_site_url() : $new_instance['src_url'];
 		$new_instance['src_url'] = str_ireplace( array('https://','http://'), '' , $src_url );
-		$new_instance['display_image'] = $new_instance['display_image'] ? '1' : '0';
+		$new_instance['headline'] = array_key_exists('headline', $new_instance) ? '1' : '0';
+		$new_instance['biography'] = array_key_exists('biography', $new_instance) ? '1' : '0';
+		$new_instance['apps'] = array_key_exists('apps', $new_instance) ? '1' : '0';
+		/*$new_instance['links'] = array_key_exists('links', $new_instance) ? '1' : '0';*/
 		$registration_flag = true; //This determines if we need to call registration api or not.
 		$dataurl = '';
 		$url = '';
@@ -271,12 +313,24 @@ margin-bottom: 4px;
 	private function extract_api_data( $data ) {
 		$retarr = array();
 		if ( !empty( $data ) && 200 == $data->status ) {
-			$icons = array();
-			$i=0;
+			$app_icons = array();
+			$link_icons = array();
+			$i = 0;
+			$j = 0;
 			foreach ( $data->websites as $c ) {
-				if ( 'link' == $c->platform || 'default' == $c->platform )
+				if ( 'default' == $c->platform )
 					continue; //we want to show only service icons
-				if ( !empty( $c->icon42_url ) ) {
+				elseif ( 'link' == $c->platform ){
+					$icon_url = $c->icon_url;
+					if ( $c->site_url ) {
+						$url = $c->site_url;
+					} else if( $c->modal_url ) {
+						$url = $c->modal_url;
+					} else if( $c->service_url ) {
+						$url = $c->service_url;
+					}
+					$link_icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url, 'text'=>$c->display_name );
+				} elseif ( !empty( $c->icon42_url ) ) {
 					$icon_url = $c->icon42_url;
 					$icon_url = str_replace( '42x42', '32x32', $icon_url );
 					if ( $c->site_url ) {
@@ -286,12 +340,14 @@ margin-bottom: 4px;
 					} else {
 						$url = 'http://about.me/' . $data->user_name . '/#!/service/' . $c->platform;
 					}
-					$icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url );
+					$app_icons[$j++] = array( 'icon'=>$icon_url, 'url'=>$url );
 				}
 			}
-			$retarr['service_icons'] = $icons;
+			$retarr['app_icons'] = $app_icons;
+			$retarr['link_icons'] = $link_icons;
 			$retarr['profile_url'] = $data->profile;
 			$retarr['thumbnail'] = $data->background;
+			$retarr['avatar'] = $data->avatar;
 			$retarr['first_name'] = $data->first_name;
 			$retarr['last_name'] = $data->last_name;
 			$retarr['header'] = $data->header;
@@ -309,11 +365,15 @@ margin-bottom: 4px;
 	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
-		$instance = wp_parse_args( ( array ) $instance, array( 'title' => 'about.me', 'fontsize' =>'large', 'client_id' => '', 'error' => 0, 'debug_url' => '', 'src_url'  => str_ireplace( array('https://','http://'), '' , get_site_url() ), 'username' => '', 'display_image' => '1' ) );
+		$instance = wp_parse_args( ( array ) $instance, array( 'title' => 'about.me', 'fontsize' =>'large', 'photo' => 'background', 'client_id' => '', 'error' => 0, 'debug_url' => '', 'src_url'  => str_ireplace( array('https://','http://'), '' , get_site_url() ), 'username' => '', 'headline' => '1', 'biography' => 1, 'apps' => 1, 'links' => 1) );
 		$title = $instance['title'];
 		$fontsize = $instance['fontsize'];
+		$photo = $instance['photo'];
 		$username = array_key_exists( 'username', $instance )? $instance['username'] : '';
-		$display_image = array_key_exists( 'display_image', $instance )? $instance['display_image'] : '1';
+		$headline = array_key_exists( 'headline', $instance )? $instance['headline'] : '1';
+		$biography = array_key_exists( 'biography', $instance )? $instance['biography'] : '1';
+		$apps = array_key_exists( 'apps', $instance )? $instance['apps'] : '1';
+		$links = array_key_exists( 'links', $instance )? $instance['links'] : '1';
 		if ( empty($username) ) {
 ?>
 			<p>
@@ -346,40 +406,53 @@ margin-bottom: 4px;
 					<span style="font-size:80%;color:red"><?php _e( 'We encountered an error while communicating with the about.me server.  Please try again later.', 'aboutme-widget' ) ?></span>
 				<?php } ?>
 			<?php } ?>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'fontsize' ); ?>"><?php _e( 'Name size', 'aboutme-widget' );?>:</label>
-			<select id="<?php echo $this->get_field_id( 'fontsize' ); ?>" name="<?php echo $this->get_field_name( 'fontsize' ); ?>">
-				<option value='x-large' <?php selected( $fontsize, 'x-large' ); ?>><?php _e( 'X-Large', 'aboutme-widget' ) ?></option>
-				<option value='large' <?php selected( $fontsize, 'large' ); ?>><?php _e( 'Large', 'aboutme-widget' ) ?></option>
-				<option value='medium' <?php selected( $fontsize, 'medium' ); ?>><?php _e( 'Medium', 'aboutme-widget' ) ?></option>
-				<option value='small' <?php selected( $fontsize, 'small' ); ?>><?php _e( 'Small', 'aboutme-widget' ) ?></option>
+		   	</p>
+			<p>
+			<label for="<?php echo $this->get_field_id( 'photo' ); ?>"><?php _e( 'Photo', 'aboutme-widget' );?>:</label>
+			<select id="<?php echo $this->get_field_id( 'photo' ); ?>" name="<?php echo $this->get_field_name( 'photo' ); ?>">
+				<option value='background' <?php selected( $photo, 'background' ); ?>><?php _e( 'Background Image', 'aboutme-widget' ) ?></option>
+				<option value='bio' <?php selected( $photo, 'bio' ); ?>><?php _e( 'Bio Photo', 'aboutme-widget' ) ?></option>
+				<option value='no-photo' <?php selected( $photo, 'no-photo' ); ?>><?php _e( 'None', 'aboutme-widget' ) ?></option>
 			</select>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'display_image' ); ?>"><?php _e( 'Display Image', 'aboutme-widget' );?>:</label>
-			<input type="checkbox" id="<?php echo $this->get_field_id( 'display_image' ); ?>" name="<?php echo $this->get_field_name( 'display_image' ); ?>" value="1" <?php checked( $display_image, '1' ); ?> /> 
-			<input type="hidden" id="<?php echo $this->get_field_id( 'client_id' ); ?>" name="<?php echo $this->get_field_name( 'client_id' ); ?>" value="<?php echo $instance['client_id']; ?>">
-			<input type="hidden" id="<?php echo $this->get_field_id( 'error' ); ?>" name="<?php echo $this->get_field_name( 'error' ); ?>" value="<?php echo $instance['error']; ?>">
-			<input type="hidden" id="<?php echo $this->get_field_id( 'src_url' ); ?>" name="<?php echo $this->get_field_name( 'src_url' ); ?>" value="<?php echo $instance['src_url']; ?>">
-		</p>
+		    </p>
+			<p>
+				<label for="<?php echo $this->get_field_id( 'fontsize' ); ?>"><?php _e( 'Name', 'aboutme-widget' );?>:</label>
+				<select id="<?php echo $this->get_field_id( 'fontsize' ); ?>" name="<?php echo $this->get_field_name( 'fontsize' ); ?>">
+					<option value='x-large' <?php selected( $fontsize, 'x-large' ); ?>><?php _e( 'Display X-Large', 'aboutme-widget' ) ?></option>
+					<option value='large' <?php selected( $fontsize, 'large' ); ?>><?php _e( 'Display Large', 'aboutme-widget' ) ?></option>
+					<option value='medium' <?php selected( $fontsize, 'medium' ); ?>><?php _e( 'Display Medium', 'aboutme-widget' ) ?></option>
+					<option value='small' <?php selected( $fontsize, 'small' ); ?>><?php _e( 'Display Small', 'aboutme-widget' ) ?></option>
+					<option value='no-name' <?php selected( $fontsize, 'no-name' ); ?>><?php _e( "Don't Display Name", 'aboutme-widget' ) ?></option>
+				</select>
+			</p>
+			<p>
+				<label for="<?php echo $this->get_field_id( 'headline' ); ?>"><?php _e( 'Headline', 'aboutme-widget' );?>:
+				<input type="checkbox" id="<?php echo $this->get_field_id( 'headline' ); ?>" name="<?php echo $this->get_field_name( 'headline' ); ?>" value="1" <?php checked( $headline, '1' ); ?> /> 
+				</label>
+			</p>
+			<p>
+				<label for="<?php echo $this->get_field_id( 'biography' ); ?>"><?php _e( 'Biography', 'aboutme-widget' );?>:
+				<input type="checkbox" id="<?php echo $this->get_field_id( 'biography' ); ?>" name="<?php echo $this->get_field_name( 'biography' ); ?>" value="1" <?php checked( $biography, '1' ); ?> /> 
+				</label>
+			</p>
+			<p>				
+				<label for="<?php echo $this->get_field_id( 'apps' ); ?>"><?php _e( 'Apps', 'aboutme-widget' );?>:
+				<input type="checkbox" id="<?php echo $this->get_field_id( 'apps' ); ?>" name="<?php echo $this->get_field_name( 'apps' ); ?>" value="1" <?php checked( $apps, '1' ); ?> /> 
+				</label>
+			</p>			
+			<p>
+			<!--
+				<label for="<?php echo $this->get_field_id( 'links' ); ?>"><?php _e( 'Links', 'aboutme-widget' );?>:
+				<input type="checkbox" id="<?php echo $this->get_field_id( 'links' ); ?>" name="<?php echo $this->get_field_name( 'links' ); ?>" value="1" <?php checked( $links, '1' ); ?> /> 
+				</label>		
+				-->		
+				<input type="hidden" id="<?php echo $this->get_field_id( 'client_id' ); ?>" name="<?php echo $this->get_field_name( 'client_id' ); ?>" value="<?php echo $instance['client_id']; ?>">
+				<input type="hidden" id="<?php echo $this->get_field_id( 'error' ); ?>" name="<?php echo $this->get_field_name( 'error' ); ?>" value="<?php echo $instance['error']; ?>">
+				<input type="hidden" id="<?php echo $this->get_field_id( 'src_url' ); ?>" name="<?php echo $this->get_field_name( 'src_url' ); ?>" value="<?php echo $instance['src_url']; ?>">
+			</p>
 <?php
 	}
-
-
 }
-//register Aboutme_Widget widget
-function aboutme_widget_init() {
-	register_widget( 'Aboutme_Widget' );
-}
-
-add_action( 'widgets_init', 'aboutme_widget_init' );
-
-
-
-
-
-
 
 
 
@@ -416,11 +489,24 @@ function get_am_api_data( $data ) {
 	$retarr = array();
 	if ( !empty( $data ) && 200 == $data->status ) {
 		$icons = array();
-		$i=0;
+		$app_icons = array();
+		$link_icons = array();
+		$i = 0;
+		$j = 0;
 		foreach ( $data->websites as $c ) {
-			if ( 'link' == $c->platform || 'default' == $c->platform )
+			if ('default' == $c->platform ) {
 				continue; //we want to show only service icons
-			if ( !empty( $c->icon42_url ) ) {
+			} elseif ( 'link' == $c->platform ){
+				$icon_url = $c->icon_url;
+				if ( $c->site_url ) {
+					$url = $c->site_url;
+				} else if( $c->modal_url ) {
+					$url = $c->modal_url;
+				} else if( $c->service_url ) {
+					$url = $c->service_url;
+				}
+				$link_icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url, 'text'=>$c->display_name );
+			} elseif ( !empty( $c->icon42_url ) ) {
 				$icon_url = $c->icon42_url;
 				$icon_url = str_replace( '42x42', '32x32', $icon_url );
 				if ( $c->site_url ) {
@@ -430,10 +516,11 @@ function get_am_api_data( $data ) {
 				} else {
 					$url = 'http://about.me/' . $data->user_name . '/#!/service/' . $c->platform;
 				}
-				$icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url );
+				$app_icons[$j++] = array( 'icon'=>$icon_url, 'url'=>$url );
 			}
 		}
-		$retarr['service_icons'] = $icons;
+		$retarr['app_icons'] = $app_icons;
+		$retarr['link_icons'] = $link_icons;
 		$retarr['profile_url'] = $data->profile;
 		$retarr['thumbnail'] = $data->background;
 		$retarr['first_name'] = $data->first_name;
@@ -455,71 +542,87 @@ $biostr ='';
 if ( !empty( $data['bio'] ) ) {
 	$biostr = '<p>' . str_replace( "\n", '</p><p>', wp_kses_data( $data['bio'] ) ) . '</p>';
 }
-$servicestr = '';
-if ( count( $data['service_icons'] ) > 0 ) {
-	$servicestr = '<div id="am_services">';
-	foreach ( $data['service_icons'] as $v ) {
-		$servicestr .= '<a href="' . esc_url( $v['url'] ) . '" target="_blank" class="am_service_icon" rel="me"><img src="' . esc_url( $v['icon'] ) . '"></a>';
+$appstr = '';
+if ( count( $data['app_icons'] ) > 0 ) {
+	$appstr = '<div class="am_services">';
+	foreach ( $data['app_icons'] as $v ) {
+		$appstr .= '<a href="' . esc_url( $v['url'] ) . '" target="_blank" class="am_service_icon" rel="me"><img src="' . esc_url( $v['icon'] ) . '"></a>';
 	}
-	$servicestr .= '</div>';
+	$appstr .= '</div>';
 }
+/*
+$linkstr = '';
+if ( count( $data['link_icons'] ) > 0 ) {
+	$linkstr = '<div class="am_links"><ul>';
+	foreach ( $data['link_icons'] as $v ) {
+		$linkstr .= '<li> <a href="' . esc_url( $v['url'] ) . '" target="_blank" class="am_link_icon" rel="me"><img src="' . esc_url( $v['icon'] ) . '"></a> <span><a href="' . esc_url( $v['url'] ) . '" target="_blank" class="am_link_icon" rel="me">' . esc_attr( $v['text'] ) . '</a></span></li>';
+	}
+	$linkstr .= '</ul></div>';
+}
+*/
 
 $content = 
 '<style type="text/css">
-#am_thumbnail a {
+div.am_thumbnail a {
 text-decoration: none;
 border: none;
 }
-#am_thumbnail img {
+div.am_thumbnail img {
 text-decoration: none;
 border: 1px solid #999;
 max-width: 99%;
 }
-#am_name {
+h2.am_name {
 margin-top: 5px;
 margin-bottom: 3px;
 }
-#am_headline {
+h3.am_headline {
 margin-bottom: 5px;
 }
-#am_bio {
+div.am_bio {
 margin-bottom: 15px;
 }
-#am_bio p {
+div.am_bio p {
 margin-bottom: 5px;
 }
-#am_bio p:last-child {
+div.am_bio p:last-child {
 margin-bottom: 0px;
 }
-#am_services {
+div.am_services {
 margin-right: -5px;
 }
-#am_services a.am_service_icon {
+div.am_services a.am_service_icon {
 margin-right: 4px;
 text-decoration: none;
 border: none;
 }
-#am_services a.am_service_icon:hover {
+div.am_services a.am_service_icon:hover {
 text-decoration: none;
 border: none;
 }
-#am_services a.am_service_icon img {
+div.am_services a.am_service_icon img {
 border: none;
 margin-bottom: 4px;
 }
 </style>
 
-<div id="am_thumbnail">
+<div class="am_thumbnail">
 	<a href="' . esc_url( $data['profile_url'] ) . '" target="_blank" rel="me">
 		<img src="' . esc_url( $data['thumbnail'] ) .'" alt="'. esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '">
 	</a>
 </div>
-<h2 id="am_name">
+<h2 class="am_name">
 	<a href="'.esc_url( $data['profile_url'] ) . '" style="font-size:large;" target="_blank" rel="me">' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '</a>
 </h2>
-<h3 id="am_headline">' . esc_attr( $data['header'] ) . '</h3>
-<div id="am_bio">
-	<p>' . $biostr .'</p>
-</div>' . $servicestr;
+<h3 class="am_headline">' . esc_attr( $data['header'] ) . '</h3>
+<div class="am_bio">' . $biostr .'</div>' . $appstr;
 return $content;
 }
+?>
+<?php
+//register Aboutme_Widget widget
+function aboutme_widget_init() {
+	register_widget( 'Aboutme_Widget' );
+}
+
+add_action( 'widgets_init', 'aboutme_widget_init' );

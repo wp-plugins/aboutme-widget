@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: aboutme-widget\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-10 20:31+0530\n"
-"PO-Revision-Date: 2012-11-10 20:31+0530\n"
+"POT-Creation-Date: 2012-12-01 12:54+0530\n"
+"PO-Revision-Date: 2012-12-01 12:54+0530\n"
 "Last-Translator: \n"
 "Language-Team: About.me\n"
 "MIME-Version: 1.0\n"
@@ -22,92 +22,124 @@ msgstr ""
 msgid "About.me Widget"
 msgstr ""
 
-#: aboutme-widget.php:320
+#: aboutme-widget.php:380
 msgid "About.me"
 msgstr ""
 
-#: aboutme-widget.php:320
+#: aboutme-widget.php:380
 msgid ""
 "is a free service that lets you create a beautiful one-page website all "
 "about you."
 msgstr ""
 
-#: aboutme-widget.php:323
+#: aboutme-widget.php:383
 msgid "Current users simply add your username below. Or,"
 msgstr ""
 
-#: aboutme-widget.php:323
+#: aboutme-widget.php:383
 msgid "sign up"
 msgstr ""
 
-#: aboutme-widget.php:323
+#: aboutme-widget.php:383
 msgid ", create a page then add your username here."
 msgstr ""
 
-#: aboutme-widget.php:327
+#: aboutme-widget.php:387
 msgid "Widget title"
 msgstr ""
 
-#: aboutme-widget.php:331
+#: aboutme-widget.php:391
 msgid "Your about.me username"
 msgstr ""
 
-#: aboutme-widget.php:336
+#: aboutme-widget.php:396
 msgid ""
 "There isn't an about.me page by that name. Please check your username and "
 "try again."
 msgstr ""
 
-#: aboutme-widget.php:338
+#: aboutme-widget.php:398
 msgid "Don't have an about.me page?"
 msgstr ""
 
-#: aboutme-widget.php:338
+#: aboutme-widget.php:398
 msgid "Sign up now!"
 msgstr ""
 
-#: aboutme-widget.php:340
+#: aboutme-widget.php:400
 msgid ""
 "There was an authorization error in the profile api request. Please contact "
 "help@about.me for support."
 msgstr ""
 
-#: aboutme-widget.php:341 aboutme-widget.php:344 aboutme-widget.php:347
+#: aboutme-widget.php:401 aboutme-widget.php:404
 msgid " mentiontioning following url:"
 msgstr ""
 
-#: aboutme-widget.php:343
+#: aboutme-widget.php:403
 msgid ""
 "There was an authorization error in the registration process. Please email "
 "help@about.me for support."
 msgstr ""
 
-#: aboutme-widget.php:346
+#: aboutme-widget.php:406
 msgid ""
 "We encountered an error while communicating with the about.me server.  "
 "Please try again later."
 msgstr ""
 
-#: aboutme-widget.php:352
-msgid "Name size"
+#: aboutme-widget.php:411
+msgid "Photo"
 msgstr ""
 
-#: aboutme-widget.php:354
-msgid "X-Large"
+#: aboutme-widget.php:413
+msgid "Background Image"
 msgstr ""
 
-#: aboutme-widget.php:355
-msgid "Large"
+#: aboutme-widget.php:414
+msgid "Bio Photo"
 msgstr ""
 
-#: aboutme-widget.php:356
-msgid "Medium"
+#: aboutme-widget.php:415
+msgid "None"
 msgstr ""
 
-#: aboutme-widget.php:357
-msgid "Small"
+#: aboutme-widget.php:419
+msgid "Name"
 msgstr ""
 
-#: aboutme-widget.php:361
-msgid "Display Image"
+#: aboutme-widget.php:421
+msgid "Display X-Large"
+msgstr ""
+
+#: aboutme-widget.php:422
+msgid "Display Large"
+msgstr ""
+
+#: aboutme-widget.php:423
+msgid "Display Medium"
+msgstr ""
+
+#: aboutme-widget.php:424
+msgid "Display Small"
+msgstr ""
+
+#: aboutme-widget.php:425
+msgid "Don't Display Name"
+msgstr ""
+
+#: aboutme-widget.php:429
+msgid "Headline"
+msgstr ""
+
+#: aboutme-widget.php:434
+msgid "Biography"
+msgstr ""
+
+#: aboutme-widget.php:439
+msgid "Apps"
+msgstr ""
+
+#: aboutme-widget.php:445
+msgid "Links"
 msgstr ""
