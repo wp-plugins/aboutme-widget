@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.1
+Version: 1.1.1
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -392,19 +392,45 @@ border: none;
 			<input id="<?php echo $this->get_field_id( 'username' ); ?>" name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo $username; ?>" style="width: 100%;" type="text" />
 
 			<?php if ( array_key_exists( 'error', $instance ) ) {
-				if ( self::ERROR_NO_USER == $instance['error'] ) { ?>
+				
+					if ( self::ERROR_NO_USER == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( "There isn't an about.me page by that name. Please check your username and try again.", 'aboutme-widget' ) ?></span>
+				
 				<?php } else if ( self::ERROR_EMPTY_USER == $instance['error'] ) { ?>
 					<span style="font-size:80%"><?php _e( "Don't have an about.me page?", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'Sign up now!', 'aboutme-widget' );?></a></span>
-				<?php } else if ( self::API_PROFILE_ERROR == $instance['error'] ) { ?>
-					<span style="font-size:80%;color:red"><?php _e( 'There was an authorization error in the profile api request. Please contact help@about.me for support.', 'aboutme-widget' ) ?></span>
-					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
-				<?php } else if ( self::API_REGISTRATION_ERROR == $instance['error'] ) { ?>
-					<span style="font-size:80%;color:red"><?php _e( 'There was an authorization error in the registration process. Please email help@about.me for support.', 'aboutme-widget' ) ?></span>
-					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {?> <span style="font-size:80%;color:red"><?php _e(' mentiontioning following url:')?><b><?php echo $instance['debug_url']?></b></span><?php }?>
+				
+				<?php } else if ( self::API_PROFILE_ERROR == $instance['error'] ) { 
+					
+					$message = __( 'There was an authorization error in the profile api request.', 'aboutme-widget' ); ?>
+					<span style="font-size:80%;color:red"><?php echo $message; ?>
+					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {
+							if (!wp_mail('help@about.me', 'Wordpress Widget Error!!!!!!!!!', $message . ' The api url was: '. $instance['debug_url']) ) {
+								_e( 'Please contact help@about.me for support mentiontioning following url:', 'aboutme-widget' )?>
+								<b><?php echo $instance['debug_url']?></b>
+						<?php   } else { 
+								_e( 'Email has been sent to help@about.me for support', 'aboutme-widget' );
+							}
+					}?>
+					</span>
+				
+				<?php } else if ( self::API_REGISTRATION_ERROR == $instance['error'] ) { 
+				
+					$message = __( 'There was an authorization error in the registration process.', 'aboutme-widget' ); ?>
+					<span style="font-size:80%;color:red"><?php echo $message; ?>
+					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {
+							if (!wp_mail('help@about.me', 'Wordpress Widget Error!!!!!!!!!', $message . ' The api url was: '. $instance['debug_url']) ) {
+								_e( 'Please email help@about.me for support mentiontioning following url:', 'aboutme-widget' )?>
+								<b><?php echo $instance['debug_url']?></b>
+						<?php   } else { 
+								_e( 'Email has been sent to help@about.me for support', 'aboutme-widget' );
+							}
+					}?>
+					</span>
+					
 				<?php } else if ( self::API_SERVER_ERROR == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( 'We encountered an error while communicating with the about.me server.  Please try again later.', 'aboutme-widget' ) ?></span>
 				<?php } ?>
+			
 			<?php } ?>
 		   	</p>
 			<p>
