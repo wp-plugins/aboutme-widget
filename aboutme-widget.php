@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.1.1
+Version: 1.1.2
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -21,7 +21,11 @@ class Aboutme_Widget extends WP_Widget {
 	const API_PROFILE_ERROR = 3;
 	const API_SERVER_ERROR = 4;
 	const API_REGISTRATION_ERROR = 5;
-
+	const API_EMPTY_RESPONSE = 6;
+	const ERROR_UNKNOWN = 9;
+	
+	const AUTO_MAILING = 0;
+	const SHOW_DEBUG_URL = 1;
 
 
 	/**
@@ -48,10 +52,10 @@ class Aboutme_Widget extends WP_Widget {
 		$photo = empty( $instance['photo'] ) ? 'background' : $instance['photo'];
 		$username = empty( $instance['username'] ) ? '' : $instance['username'];
 		//We need to check the key existence as this option was absent in initial release, otherwise widget might break
-		$headline = array_key_exists('headline', $instance )? $instance['headline'] : "1";
-		$biography = array_key_exists('biography', $instance )? $instance['biography'] : "1";
-		$apps = array_key_exists('apps', $instance )? $instance['apps'] : "1";
-		/*$links = array_key_exists('links', $instance )? $instance['links'] : "1";*/
+		$headline = array_key_exists( 'headline', $instance )? $instance['headline'] : "1";
+		$biography = array_key_exists( 'biography', $instance )? $instance['biography'] : "1";
+		$apps = array_key_exists( 'apps', $instance )? $instance['apps'] : "1";
+		/*$links = array_key_exists( 'links', $instance )? $instance['links'] : "1";*/
 				
 		//If no username is there, return
 		if ( empty( $username ) )
@@ -61,9 +65,9 @@ class Aboutme_Widget extends WP_Widget {
 		if ( false === $data ) {
 			$url = 'https://api.about.me/api/v2/json/user/view/' . $username . '?client_id=' . $instance['client_id'] . '&extended=true&on_match=true&strip_html=false';
 			$data = $this->get_api_content( $url );
-			if (false !== $data) {
+			if ( false !== $data ) {
 				$data = $this->extract_api_data( $data );
-				if ( !empty( $data ) ) {
+				if ( ! empty( $data ) ) {
 					//Store this profile data in database
 					set_transient( 'am_' . $username . '_data', $data, self::CACHE_TIME );
 				} else {
@@ -80,13 +84,13 @@ class Aboutme_Widget extends WP_Widget {
 		// if any key value is not present in stored data, delete the data as it is not in proper format
 		$keys = array( 'app_icons', 'link_icons', 'profile_url', 'thumbnail', 'avatar', 'first_name', 'last_name', 'header', 'bio' );
 		foreach ( $keys as $k => $val ) {
-			if ( !array_key_exists( $val, $data ) ) {
+			if ( ! array_key_exists( $val, $data ) ) {
 				delete_transient( 'am_' . $username . '_data' );
 				return;
 			}
 		}
 		//Check the non emptyness of $data
-		if ( is_array( $data ) && !empty( $data ) ) {
+		if ( is_array( $data ) && ! empty( $data ) ) {
 ?>
 <style type="text/css">
 #am_thumbnail a {
@@ -145,7 +149,7 @@ border: none;
 <?php
 			// html markup for widget display
 			echo $before_widget;
-			if ( !empty( $title ) )
+			if ( ! empty( $title ) )
 				echo $before_title . $title . $after_title;
 			if ( $photo == 'background' )
 				$thumbnail = $data['thumbnail'];
@@ -153,16 +157,16 @@ border: none;
 			 	$thumbnail =  $data['avatar'];
 			else
 				$thumbnail =  '';
-			if ( !empty( $thumbnail ) ) {
+			if ( ! empty( $thumbnail ) ) {
 				echo '<div id="am_thumbnail"><a href="' . esc_url( $data['profile_url'] ) . '" target="_blank" rel="me"><img src="' . esc_url( $thumbnail ) . '" alt="' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '"></a></div>';
 			}
 			if( $fontsize != 'no-name' ) {
 				echo '<h2 id="am_name"><a href="' . $data['profile_url'] . '" style="font-size:' . $fontsize . ';" target="_blank" rel="me">' . esc_attr( $data['first_name'] ) . ' ' . esc_attr( $data['last_name'] ) . '</a></h2>';
 			}
 			//If user opts to show headline show that
-			if ( $headline && !empty( $data['header'] ) ) echo '<h3 id="am_headline">' . esc_attr( $data['header'] ) . '</h3>';
+			if ( $headline && ! empty( $data['header'] ) ) echo '<h3 id="am_headline">' . esc_attr( $data['header'] ) . '</h3>';
 			//If user opts to show bio show that
-			if ( $biography && !empty( $data['bio'] ) ) {
+			if ( $biography && ! empty( $data['bio'] ) ) {
 				$biostr = '<p>' . str_replace( "\n", '</p><p>', wp_kses_data( $data['bio'] ) ) . '</p>';
 			} else {
 				$biostr = '';
@@ -226,33 +230,37 @@ border: none;
 			} elseif ( $username != $old_instance['username'] ) {
 				delete_transient( 'am_' . $old_instance['username'] . '_data' );
 				$registration_flag = false;
-			} elseif ( !array_key_exists( 'src_url', $old_instance ) || $src_url != $old_instance['src_url']) {
+			} elseif ( ! array_key_exists( 'src_url', $old_instance ) || $src_url != $old_instance['src_url']) {
 				$registration_flag = false;
 			}
-			if ( !$registration_flag ) {
+			if ( ! $registration_flag ) {
 				$url = 'https://api.about.me/api/v2/json/user/register/' . $username . '?apikey=' . self::API_KEY . '&src_url=' . $src_url . '&src=wordpress&verify=true';
 				$data = $this->get_api_content( $url );
-				if (false === $data) {
+				if ( false === $data ) {
 					$new_instance['error'] = self::API_SERVER_ERROR;
 					$new_instance['debug_url'] = $url;
 				} else {
-					if ( !empty( $data ) ) {
+					if ( ! empty( $data ) ) {
 						if ( 200 == $data->status ) {
 							//store this apikey as persistence object
 							$new_instance['client_id'] = $data->apikey;
 							$new_instance['error'] = 0;
-						} elseif (401 == $data->status) {
+						} elseif ( 401 == $data->status ) {
 							$new_instance['error'] = self::API_REGISTRATION_ERROR;
 							$new_instance['client_id'] = '';
-							$new_instance['debug_url'] = $url;
-							
-						} elseif (404 == $data->status) {
+							$new_instance['debug_url'] = $url.'&status=401';
+						} elseif ( 404 == $data->status ) {
 							$new_instance['error'] = self::ERROR_NO_USER;
 							$new_instance['client_id'] = '';
+						} else {
+							$new_instance['error'] = self::ERROR_UNKNOWN;
+							$new_instance['client_id'] = '';
+							$new_instance['debug_url'] = $url.'&status='.$data->status;
 						}
 					} else {
-						$new_instance['error'] = self::API_REGISTRATION_ERROR;
-						$new_instance['debug_url'] = $url;
+						$new_instance['error'] = self::API_EMPTY_RESPONSE;
+						$new_instance['client_id'] = '';
+						$new_instance['debug_url'] = $url.'&status=empty';
 					}
 				}
 			}
@@ -260,28 +268,33 @@ border: none;
 			if ( ! empty( $new_instance['client_id'] ) ){
 				$dataurl = "https://api.about.me/api/v2/json/user/view/$username?client_id={$new_instance['client_id']}&extended=true&on_match=true&strip_html=false";
 				$userdata = $this->get_api_content( $dataurl );
-				if (false === $userdata) {
+				if ( false === $userdata ) {
 					$new_instance['error'] = self::API_SERVER_ERROR;
 					$new_instance['debug_url'] = $dataurl;
 				} else {
-					if ( !empty( $userdata ) ){
+					if ( ! empty( $userdata ) ){
 						if ( 200 == $userdata->status ) {
 							// Reset any previous error that might have been set
 							$new_instance['error'] = 0;
 							$data = $this->extract_api_data( $userdata );
 							set_transient( 'am_' . $username . '_data', $data, self::CACHE_TIME );
-						} elseif (401 == $data->status) {
+						} elseif ( 401 == $userdata->status ) {
 							$new_instance['error'] = self::API_PROFILE_ERROR;
 							$new_instance['client_id'] = '';
-							$new_instance['debug_url'] = $dataurl;
+							$new_instance['debug_url'] = $dataurl.'&status=401';
 							
-						} elseif (404 == $data->status) {
+						} elseif ( 404 == $userdata->status ) {
 							$new_instance['error'] = self::ERROR_NO_USER;
 							$new_instance['client_id'] = '';
+						} else {
+							$new_instance['error'] = self::ERROR_UNKNOWN;
+							$new_instance['client_id'] = '';
+							$new_instance['debug_url'] = $dataurl.'&status='.$userdata->status;
 						}
 					} else {
-						$new_instance['error'] = self::API_PROFILE_ERROR;
-						$new_instance['debug_url'] = $dataurl;
+						$new_instance['error'] = self::API_EMPTY_RESPONSE;
+						$new_instance['client_id'] = '';
+						$new_instance['debug_url'] = $dataurl.'&status=empty';
 					}
 				}
 			}
@@ -312,7 +325,7 @@ border: none;
 	 */
 	private function extract_api_data( $data ) {
 		$retarr = array();
-		if ( !empty( $data ) && 200 == $data->status ) {
+		if ( ! empty( $data ) && 200 == $data->status ) {
 			$app_icons = array();
 			$link_icons = array();
 			$i = 0;
@@ -330,7 +343,7 @@ border: none;
 						$url = $c->service_url;
 					}
 					$link_icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url, 'text'=>$c->display_name );
-				} elseif ( !empty( $c->icon42_url ) ) {
+				} elseif ( ! empty( $c->icon42_url ) ) {
 					$icon_url = $c->icon42_url;
 					$icon_url = str_replace( '42x42', '32x32', $icon_url );
 					if ( $c->site_url ) {
@@ -391,48 +404,75 @@ border: none;
 			<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Your about.me username', 'aboutme-widget' );?>:</label>
 			<input id="<?php echo $this->get_field_id( 'username' ); ?>" name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo $username; ?>" style="width: 100%;" type="text" />
 
-			<?php if ( array_key_exists( 'error', $instance ) ) {
+			<?php
+			if ( array_key_exists( 'error', $instance ) ) {
 				
-					if ( self::ERROR_NO_USER == $instance['error'] ) { ?>
+				if ( self::ERROR_NO_USER == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( "There isn't an about.me page by that name. Please check your username and try again.", 'aboutme-widget' ) ?></span>
 				
-				<?php } else if ( self::ERROR_EMPTY_USER == $instance['error'] ) { ?>
+				<?php
+				} else if ( self::ERROR_EMPTY_USER == $instance['error'] ) { ?>
 					<span style="font-size:80%"><?php _e( "Don't have an about.me page?", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'Sign up now!', 'aboutme-widget' );?></a></span>
 				
-				<?php } else if ( self::API_PROFILE_ERROR == $instance['error'] ) { 
+				<?php
+				} else if ( self::API_PROFILE_ERROR == $instance['error'] ) { 
 					
-					$message = __( 'There was an authorization error in the profile api request.', 'aboutme-widget' ); ?>
-					<span style="font-size:80%;color:red"><?php echo $message; ?>
-					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {
-							if (!wp_mail('help@about.me', 'Wordpress Widget Error!!!!!!!!!', $message . ' The api url was: '. $instance['debug_url']) ) {
-								_e( 'Please contact help@about.me for support mentiontioning following url:', 'aboutme-widget' )?>
-								<b><?php echo $instance['debug_url']?></b>
-						<?php   } else { 
+					$message = __( 'There was an authorization error in the profile api request.', 'aboutme-widget' ); 
+					if ( array_key_exists( 'debug_url', $instance ) && ! empty( $instance['debug_url'] ) ) {
+						if ( self::AUTO_MAILING ) {
+							if ( ! wp_mail('help@about.me', 'Wordpress Widget Profile Error!!!!!!!!!', $message . ' The api url was: '. $instance['debug_url']) ) {
+								$message .= __( ' Please contact help@about.me for support', 'aboutme-widget' );
+							} else { 
+								$message .= __( 'Email has been sent to help@about.me for support', 'aboutme-widget' );
+							}
+						} else {
+							$message .= __( ' Please contact help@about.me for support', 'aboutme-widget' );
+						}
+						if ( self::SHOW_DEBUG_URL ) {
+							$message .= __( ' mentiontioning following url:', 'aboutme-widget' ); 
+							$message .= '<b>' . $instance['debug_url'] .'</b>';
+						}
+					} else{
+						$message .= __( ' Please contact help@about.me for support', 'aboutme-widget' );
+					}?>
+					<span style="font-size:80%;color:red"><?php echo $message; ?></span>
+				
+				<?php
+				} else if ( self::API_REGISTRATION_ERROR == $instance['error'] ) { 
+				
+					$message = __( 'There was an authorization error in the registration process.', 'aboutme-widget' );
+					if ( array_key_exists( 'debug_url', $instance ) && ! empty( $instance['debug_url'] ) ) {
+						if ( self::AUTO_MAILING ) {
+							if ( ! wp_mail('help@about.me', 'Wordpress Widget Registration Error!!!!!!!!!', $message . ' The api url was: '. $instance['debug_url']) ) {
+								$message .= __( ' Please email help@about.me for support', 'aboutme-widget' );
+							} else { 
 								_e( 'Email has been sent to help@about.me for support', 'aboutme-widget' );
 							}
+						} else {
+							$message .= __( ' Please email help@about.me for support', 'aboutme-widget' );
+						}
+						if ( self::SHOW_DEBUG_URL ) {
+							$message .= __( ' mentiontioning following url:', 'aboutme-widget' ); 
+							$message .= '<b>' . $instance['debug_url'] .'</b>';
+						}
+					} else{
+						$message .= __( ' Please email help@about.me for support', 'aboutme-widget' );
 					}?>
-					</span>
-				
-				<?php } else if ( self::API_REGISTRATION_ERROR == $instance['error'] ) { 
-				
-					$message = __( 'There was an authorization error in the registration process.', 'aboutme-widget' ); ?>
-					<span style="font-size:80%;color:red"><?php echo $message; ?>
-					<?php if ( array_key_exists( 'debug_url', $instance ) && !empty( $instance['debug_url'] ) ) {
-							if (!wp_mail('help@about.me', 'Wordpress Widget Error!!!!!!!!!', $message . ' The api url was: '. $instance['debug_url']) ) {
-								_e( 'Please email help@about.me for support mentiontioning following url:', 'aboutme-widget' )?>
-								<b><?php echo $instance['debug_url']?></b>
-						<?php   } else { 
-								_e( 'Email has been sent to help@about.me for support', 'aboutme-widget' );
-							}
-					}?>
-					</span>
+					<span style="font-size:80%;color:red"><?php echo $message; ?></span>
 					
-				<?php } else if ( self::API_SERVER_ERROR == $instance['error'] ) { ?>
+				<?php
+				} else if ( self::API_SERVER_ERROR == $instance['error'] ) { ?>
 					<span style="font-size:80%;color:red"><?php _e( 'We encountered an error while communicating with the about.me server.  Please try again later.', 'aboutme-widget' ) ?></span>
-				<?php } ?>
-			
-			<?php } ?>
-		   	</p>
+				<?php
+				} else if ( self::API_EMPTY_RESPONSE == $instance['error'] ) { ?>
+					<span style="font-size:80%;color:red"><?php _e( 'about.me server returns empty data. Please email help@about.me for support.', 'aboutme-widget' ) ?></span>
+				<?php
+				} else if ( self::ERROR_UNKNOWN == $instance['error'] ) { ?>
+					<span style="font-size:80%;color:red"><?php _e( 'An unknown error occurs while communicating with the about.me server. Please email help@about.me for support.', 'aboutme-widget' ) ?></span>
+				<?php
+				}
+			} ?>
+			</p>
 			<p>
 			<label for="<?php echo $this->get_field_id( 'photo' ); ?>"><?php _e( 'Photo', 'aboutme-widget' );?>:</label>
 			<select id="<?php echo $this->get_field_id( 'photo' ); ?>" name="<?php echo $this->get_field_name( 'photo' ); ?>">
@@ -440,7 +480,7 @@ border: none;
 				<option value='bio' <?php selected( $photo, 'bio' ); ?>><?php _e( 'Bio Photo', 'aboutme-widget' ) ?></option>
 				<option value='no-photo' <?php selected( $photo, 'no-photo' ); ?>><?php _e( 'None', 'aboutme-widget' ) ?></option>
 			</select>
-		    </p>
+			</p>
 			<p>
 				<label for="<?php echo $this->get_field_id( 'fontsize' ); ?>"><?php _e( 'Name', 'aboutme-widget' );?>:</label>
 				<select id="<?php echo $this->get_field_id( 'fontsize' ); ?>" name="<?php echo $this->get_field_name( 'fontsize' ); ?>">
@@ -491,19 +531,19 @@ border: none;
  *
  * @return string
  */
-function am_shortcode($atts, $content = null) {
+function am_shortcode( $atts, $content = null ) {
 	$username = $atts['username'];
 	$url = "https://api.about.me/api/v2/json/user/view/$username?client_id=32dc0428797310789e2b28b0b41455dd59c117c7_112796&extended=true&on_match=true&strip_html=false";
 	$response = wp_remote_get( $url, array( 'sslverify'=>0, 'User-Agent' => 'WordPress.com About.me Widget' ) );
 	$data = array();
-	if ( !is_wp_error( $response ) ) {
+	if ( ! is_wp_error( $response ) ) {
 		$data = json_decode( $response['body'] );
 	}
 	$data = get_am_api_data( $data );
 	return get_am_generate_content($data);
 }
 
-add_shortcode('aboutme', 'am_shortcode');
+add_shortcode( 'aboutme', 'am_shortcode' );
 
 /**
  * Only extract required keys from json data of api profile call
@@ -513,14 +553,14 @@ add_shortcode('aboutme', 'am_shortcode');
  */
 function get_am_api_data( $data ) {
 	$retarr = array();
-	if ( !empty( $data ) && 200 == $data->status ) {
+	if ( ! empty( $data ) && 200 == $data->status ) {
 		$icons = array();
 		$app_icons = array();
 		$link_icons = array();
 		$i = 0;
 		$j = 0;
 		foreach ( $data->websites as $c ) {
-			if ('default' == $c->platform ) {
+			if ( 'default' == $c->platform ) {
 				continue; //we want to show only service icons
 			} elseif ( 'link' == $c->platform ){
 				$icon_url = $c->icon_url;
@@ -532,7 +572,7 @@ function get_am_api_data( $data ) {
 					$url = $c->service_url;
 				}
 				$link_icons[$i++] = array( 'icon'=>$icon_url, 'url'=>$url, 'text'=>$c->display_name );
-			} elseif ( !empty( $c->icon42_url ) ) {
+			} elseif ( ! empty( $c->icon42_url ) ) {
 				$icon_url = $c->icon42_url;
 				$icon_url = str_replace( '42x42', '32x32', $icon_url );
 				if ( $c->site_url ) {
@@ -563,10 +603,10 @@ function get_am_api_data( $data ) {
  * @param array $data     aboutme profile data.
  * @return string.
  */
-function get_am_generate_content($data){
+function get_am_generate_content( $data ){
 $biostr ='';
-if ( !empty( $data['bio'] ) ) {
-	$biostr = '<p>' . str_replace( "\n", '</p><p>', wp_kses_data( $data['bio'] ) ) . '</p>';
+if ( ! empty( $data['bio'] ) ) {
+	$biostr = '<p>' . str_replace( '\n', '</p><p>', wp_kses_data( $data['bio'] ) ) . '</p>';
 }
 $appstr = '';
 if ( count( $data['app_icons'] ) > 0 ) {
