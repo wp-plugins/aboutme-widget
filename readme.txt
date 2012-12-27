@@ -3,7 +3,7 @@ Contributors: aboutdotme
 Tags: about.me, social media, personal branding
 Requires at least: 2.9
 Tested up to: 3.5
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,8 @@ Head to <a href=https://about.me>about.me to register</a>  for your free about.m
 3. About.me widget in side bar of a post
 
 == Changelog ==
+= 1.1.3 =
+* Changed text in widget configuration
 
 = 1.1.2 =
 * disable auto email in case error in api call

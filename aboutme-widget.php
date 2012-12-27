@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.1.2
+Version: 1.1.3
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -206,8 +206,14 @@ border: none;
 	public function update( $new_instance, $old_instance ) {
 		$discard = array( 'https://about.me/', 'http://about.me/', 'about.me/' );
 		$username = empty( $new_instance['username'] ) ? '' : trim($new_instance['username']);
-		$new_instance['username'] = strip_tags( stripslashes( str_replace( $discard, '',  $username ) ) );
+		$new_instance['username'] = trim( strip_tags( stripslashes( str_replace( $discard, '',  $username ) ) ) );
+		$pos = strpos( $new_instance['username'], '/' );
+		if( false !== $pos) {
+			$new_instance['username'] = substr($new_instance['username'], 0 , $pos);
+		}
+		$new_instance['username'] = trim($new_instance['username']);
 		$username = $new_instance['username'];
+		
 		$src_url = empty( $new_instance['src_url'] ) ? get_site_url() : $new_instance['src_url'];
 		$new_instance['src_url'] = str_ireplace( array('https://','http://'), '' , $src_url );
 		$new_instance['headline'] = array_key_exists('headline', $new_instance) ? '1' : '0';
@@ -218,9 +224,12 @@ border: none;
 		$dataurl = '';
 		$url = '';
 		$new_instance['debug_url'] = '';
+		
 		//Process only if username has been entered
 		if ( empty( $username ) ) {
 			$new_instance['error'] = self::ERROR_EMPTY_USER;
+		} elseif( false !== strpos( $username, ' ') ) {
+			$new_instance['error'] = self::ERROR_NO_USER;
 		} else {
 			//If no client_id has been alloted, call for aboutme registration
 			//If username has been changed, call for aboutme registration
@@ -234,6 +243,7 @@ border: none;
 				$registration_flag = false;
 			}
 			if ( ! $registration_flag ) {
+				$new_instance['client_id'] = '';
 				$url = 'https://api.about.me/api/v2/json/user/register/' . $username . '?apikey=' . self::API_KEY . '&src_url=' . $src_url . '&src=wordpress&verify=true';
 				$data = $this->get_api_content( $url );
 				if ( false === $data ) {
@@ -247,19 +257,15 @@ border: none;
 							$new_instance['error'] = 0;
 						} elseif ( 401 == $data->status ) {
 							$new_instance['error'] = self::API_REGISTRATION_ERROR;
-							$new_instance['client_id'] = '';
 							$new_instance['debug_url'] = $url.'&status=401';
 						} elseif ( 404 == $data->status ) {
 							$new_instance['error'] = self::ERROR_NO_USER;
-							$new_instance['client_id'] = '';
 						} else {
 							$new_instance['error'] = self::ERROR_UNKNOWN;
-							$new_instance['client_id'] = '';
 							$new_instance['debug_url'] = $url.'&status='.$data->status;
 						}
 					} else {
 						$new_instance['error'] = self::API_EMPTY_RESPONSE;
-						$new_instance['client_id'] = '';
 						$new_instance['debug_url'] = $url.'&status=empty';
 					}
 				}
@@ -331,9 +337,9 @@ border: none;
 			$i = 0;
 			$j = 0;
 			foreach ( $data->websites as $c ) {
-				if ( 'default' == $c->platform )
+				if ( 'default' == $c->platform || 'syndication_feed' == $c->platform) {
 					continue; //we want to show only service icons
-				elseif ( 'link' == $c->platform ){
+				} elseif ( 'link' == $c->platform ){
 					$icon_url = $c->icon_url;
 					if ( $c->site_url ) {
 						$url = $c->site_url;
@@ -393,7 +399,7 @@ border: none;
 				<a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'About.me', 'aboutme-widget');?></a> <?php _e( 'is a free service that lets you create a beautiful one-page website all about you.', 'aboutme-widget' );?>
 			</p>
 			<p>
-				<?php _e( 'Current users simply add your username below. Or,', 'aboutme-widget');?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'sign up', 'aboutme-widget' );?></a><?php _e( ', create a page then add your username here.', 'aboutme-widget' );?>
+				<?php _e( 'Current users simply copy and paste your full about.me URL in the box( http://about.me/username ) below. Or,', 'aboutme-widget');?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'sign up', 'aboutme-widget' );?></a><?php _e( ', create a page then add your full about.me URL here.', 'aboutme-widget' );?>
 			</p>
 <?php 		}?>
 			<p>
@@ -401,14 +407,14 @@ border: none;
 				<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 			</p>
 			<p>
-			<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Your about.me username', 'aboutme-widget' );?>:</label>
-			<input id="<?php echo $this->get_field_id( 'username' ); ?>" name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo $username; ?>" style="width: 100%;" type="text" />
+			<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Your about.me URL', 'aboutme-widget' );?>:</label>
+			<input id="<?php echo $this->get_field_id( 'username' ); ?>" name="<?php echo $this->get_field_name( 'username' ); ?>" value="http://about.me/<?php echo $username; ?>" style="width: 100%;" type="text" />
 
 			<?php
 			if ( array_key_exists( 'error', $instance ) ) {
 				
 				if ( self::ERROR_NO_USER == $instance['error'] ) { ?>
-					<span style="font-size:80%;color:red"><?php _e( "There isn't an about.me page by that name. Please check your username and try again.", 'aboutme-widget' ) ?></span>
+					<span style="font-size:80%;color:red"><?php _e( "We're sorry, that's not a valid username.  If you haven't, please ", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'sign up and make your page', 'aboutme-widget' ) ?></a>. <?php _e( 'If you have, please copy and paste your full about.me URL in the box( http://about.me/username ).', 'aboutme-widget' ) ?></span>
 				
 				<?php
 				} else if ( self::ERROR_EMPTY_USER == $instance['error'] ) { ?>
@@ -560,7 +566,7 @@ function get_am_api_data( $data ) {
 		$i = 0;
 		$j = 0;
 		foreach ( $data->websites as $c ) {
-			if ( 'default' == $c->platform ) {
+			if ( 'default' == $c->platform || 'syndication_feed' == $c->platform ) {
 				continue; //we want to show only service icons
 			} elseif ( 'link' == $c->platform ){
 				$icon_url = $c->icon_url;
