@@ -73,6 +73,7 @@ Head to <a href=https://about.me>about.me to register</a>  for your free about.m
 3. About.me widget in side bar of a post
 
 == Changelog ==
+
 = 1.1.3 =
 * Changed text in widget configuration
 
