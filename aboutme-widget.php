@@ -4,7 +4,7 @@ Plugin Name: About.me Widget
 Plugin URI: http://wordpress.org/extend/plugins/aboutme-widget/
 Description: Display your about.me profile on your WordPress blog
 Author: about.me
-Version: 1.1.3
+Version: 1.1.4
 Author URI: https://about.me/?ncid=aboutmewpwidget
 Text Domain: aboutme-widget
 */
@@ -396,10 +396,10 @@ border: none;
 		if ( empty($username) ) {
 ?>
 			<p>
-				<a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'About.me', 'aboutme-widget');?></a> <?php _e( 'is a free service that lets you create a beautiful one-page website all about you.', 'aboutme-widget' );?>
+				<?php printf( __( '<a href="%s" target="_blank">About.me</a> is a free service that lets you create a beautiful one-page website all about you.', 'aboutme-widget' ), 'https://about.me/?ncid=aboutmewpwidget');?>
 			</p>
 			<p>
-				<?php _e( 'Current users simply copy and paste your full about.me URL in the box( http://about.me/username ) below. Or,', 'aboutme-widget');?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'sign up', 'aboutme-widget' );?></a><?php _e( ', create a page then add your full about.me URL here.', 'aboutme-widget' );?>
+				<?php printf( __( 'Current users simply copy and paste your full about.me URL in the box( http://about.me/username ) below. Or <a href="%s" target="_blank">sign up</a>, create a page then add your full about.me URL here.', 'aboutme-widget' ), 'https://about.me/?ncid=aboutmewpwidget' ); ?>
 			</p>
 <?php 		}?>
 			<p>
@@ -414,11 +414,13 @@ border: none;
 			if ( array_key_exists( 'error', $instance ) ) {
 				
 				if ( self::ERROR_NO_USER == $instance['error'] ) { ?>
-					<span style="font-size:80%;color:red"><?php _e( "We're sorry, that's not a valid username.  If you haven't, please ", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'sign up and make your page', 'aboutme-widget' ) ?></a>. <?php _e( 'If you have, please copy and paste your full about.me URL in the box( http://about.me/username ).', 'aboutme-widget' ) ?></span>
+					<span style="font-size:80%;color:red">
+					<?php printf( __( "We're sorry, that's not a valid username. If you haven't, please <a href=\"%s\" target='_blank'>sign up and make your page</a>. If you have, please copy and paste your full about.me URL in the box( http://about.me/username ).", 'aboutme-widget' ), 'https://about.me/?ncid=aboutmewpwidget' ); ?>
+					</span>
 				
 				<?php
 				} else if ( self::ERROR_EMPTY_USER == $instance['error'] ) { ?>
-					<span style="font-size:80%"><?php _e( "Don't have an about.me page?", 'aboutme-widget' ) ?> <a href="https://about.me/?ncid=aboutmewpwidget" target="_blank"><?php _e( 'Sign up now!', 'aboutme-widget' );?></a></span>
+					<span style="font-size:80%"><?php printf(__( 'Don\'t have an about.me page? <a href="%s" target="_blank">Sign up now!', 'aboutme-widget' ), 'https://about.me/?ncid=aboutmewpwidget');?></a></span>
 				
 				<?php
 				} else if ( self::API_PROFILE_ERROR == $instance['error'] ) { 
