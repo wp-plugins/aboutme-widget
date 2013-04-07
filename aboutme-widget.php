@@ -312,7 +312,7 @@ border: none;
 	 * To read the response from aboutme api call
 	 *
 	 * @params string $url api url
-	 *
+	 * This function needs php_curl extension
 	 * @retun mixed json class or false
 	 */
 	private function get_api_content( $url ) {
