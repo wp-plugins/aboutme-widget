@@ -211,6 +211,10 @@ border: none;
 		if( false !== $pos) {
 			$new_instance['username'] = substr($new_instance['username'], 0 , $pos);
 		}
+		$pos = strpos( $new_instance['username'], '#' );
+		if( false !== $pos) {
+			$new_instance['username'] = substr($new_instance['username'], 0 , $pos);
+		}
 		$new_instance['username'] = trim($new_instance['username']);
 		$username = $new_instance['username'];
 		
@@ -312,7 +316,7 @@ border: none;
 	 * To read the response from aboutme api call
 	 *
 	 * @params string $url api url
-	 * This function needs php_curl extension
+	 *
 	 * @retun mixed json class or false
 	 */
 	private function get_api_content( $url ) {
