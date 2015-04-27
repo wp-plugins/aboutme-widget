@@ -2,7 +2,7 @@
 Contributors: aboutdotme
 Tags: about.me, social media, personal branding
 Requires at least: 2.9
-Tested up to: 4.1.2
+Tested up to: 4.2
 Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
